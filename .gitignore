@@ -1,0 +1,9 @@
+# GAS 專案 ID，避免公開
+.clasp.json
+
+# 文件與圖片
+*.docx
+*.pptx
+*.png
+*.jpg
+*.jpeg
