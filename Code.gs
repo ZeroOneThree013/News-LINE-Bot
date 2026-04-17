@@ -98,7 +98,7 @@ function readDebug() {
 function testPush() {
   var props = PropertiesService.getScriptProperties();
   var token = props.getProperty('LINE_ACCESS_TOKEN');
-  var userId = 'U03c96902916feaf5d6a64157fb47429d'; // 從 debug 取得的 userId
+  var userId = ''; // 填入目標使用者的 LINE userId（從 readDebug() 取得）
 
   var payload = {
     to: userId,
