@@ -188,25 +188,19 @@ function updateNotionPage(pageId, article) {
 }
 
 /**
- * 搜尋 Notion 資料庫，比對「標題」或「分類標籤」
+ * 搜尋 Notion 資料庫，比對「標題」「分類標籤」或「AI 摘要」
+ *
+ * 注意：不使用 Notion 的 multi_select「contains」filter 做伺服器端篩選，
+ * 因為該 filter 要求關鍵字必須是已存在的選項名稱，否則整個查詢會回傳
+ * 400 驗證錯誤（例如搜尋「Claude」但分類標籤裡沒有這個選項）。
+ * 改為抓取最近 N 篇後，在程式端自行做不分大小寫的關鍵字比對。
+ *
  * @param {string} keyword
  * @returns {Array} 最多 5 筆結果，每筆為 { title, siteName, category, summary, url, image }
  */
 function searchNotion(keyword) {
   var payload = {
-    filter: {
-      or: [
-        {
-          property: '標題',
-          title: { contains: keyword }
-        },
-        {
-          property: '分類標籤',
-          multi_select: { contains: keyword }
-        }
-      ]
-    },
-    page_size: 5,
+    page_size: 100,
     sorts: [{ property: '儲存日期', direction: 'descending' }]
   };
 
@@ -221,7 +215,19 @@ function searchNotion(keyword) {
     var body = JSON.parse(response.getContentText());
     if (!body.results) return [];
 
-    return body.results.map(function(page) {
+    var kw = keyword.toLowerCase();
+
+    var matched = body.results.filter(function(page) {
+      var props = page.properties;
+      var title = _getText(props['標題'], 'title');
+      var category = _getMultiSelect(props['分類標籤']);
+      var summary = _getText(props['AI 摘要'], 'rich_text');
+      return title.toLowerCase().indexOf(kw) !== -1 ||
+             category.toLowerCase().indexOf(kw) !== -1 ||
+             summary.toLowerCase().indexOf(kw) !== -1;
+    }).slice(0, 5);
+
+    return matched.map(function(page) {
       var props = page.properties;
       return {
         title: _getText(props['標題'], 'title'),
