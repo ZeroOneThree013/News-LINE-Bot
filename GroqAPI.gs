@@ -1,12 +1,12 @@
 /**
  * GroqAPI.gs
  * 呼叫 Groq API（OpenAI 相容格式）
- * 模型：llama-3.3-70b-versatile
+ * 模型：openai/gpt-oss-120b
  * 輸出：JSON Mode，格式 { "category": "...", "summary": "1. ...\n2. ...\n3. ..." }
  */
 
 var GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-var GROQ_MODEL = 'llama-3.3-70b-versatile';
+var GROQ_MODEL = 'openai/gpt-oss-120b';
 var FIXED_CATEGORIES = ['科技', '財經', '工具', '其他'];
 
 /**
